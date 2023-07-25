@@ -19,19 +19,38 @@ def setup_screen():
 def setup_elements(elements: ElementList, screen: pg.Surface):
     setup_background(elements, screen)
     setup_viking(elements, screen)
+    setup_platform(elements, screen)
     setup_cursor(elements, screen)
 
-def setup_background(elements: ElementList, screen: pg.Surface):
-    background = SurfaceElement(
-        pos=(0, 0), 
-        size=(config.SCREEN_WIDTH, config.SCREEN_HEIGHT))
-    elements.append(background)
+def setup_background(elements: ElementList, screen: pg.Surface):    
+    group = GroupElement(screen, GroupType.MISC)
+    background = pg.Surface(
+        size=(config.SCREEN_WIDTH, config.SCREEN_HEIGHT)
+    )
+    background.fill((20, 20, 20))
+    group.add(SpriteElement(
+        pos=(0, 0),
+        img=background
+    ))
+    elements.append(group)
 
 def setup_viking(elements: ElementList, background: pg.Surface):
     group = GroupElement(background, GroupType.MISC)
     group.add(SpriteElement(
         pos=(100, 50),
         img=graphics.img_viking
+    ))
+    elements.append(group)
+
+def setup_platform(elements: ElementList, background: pg.Surface):
+    group = GroupElement(background, GroupType.MISC)
+    platform = pg.Surface(
+        size=(150, 10)
+    )
+    platform.fill((255, 255, 255))
+    group.add(SpriteElement(
+        pos=(20, 100),
+        img=platform
     ))
     elements.append(group)
 

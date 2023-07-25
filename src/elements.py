@@ -198,3 +198,20 @@ class Cursor(SpriteElement):
 
     def on_mouse_motion(self, event: pg.event.Event):
         self.rect = pg.Rect(event.pos, (self.rect.w, self.rect.h))
+
+
+# physics sprite
+
+class PhysicsSprite(SpriteElement):
+
+    def __init__(self, pos: tuple[int, int], img: pg.Surface):
+        SpriteElement.__init__(self, pos, img)
+        self.model = PhysicsObject()
+
+    # override
+    def update(self, elements: ElementList, game: "Game"):
+        SpriteElement.update(self, elements, game)
+
+    # override
+    def draw(self, screen: pg.Surface):
+        SpriteElement.draw(self, screen)
