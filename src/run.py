@@ -16,8 +16,7 @@ def run():
 
     # setup elements and groups - NB order is also drawing order
     elements = ElementList()
-    setup.setup_background(elements, screen)
-    setup.setup_cursor(elements, screen)
+    setup.setup_elements(elements, screen)
 
     for element in elements:
         print(str(element))

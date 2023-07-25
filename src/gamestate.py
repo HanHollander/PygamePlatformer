@@ -10,3 +10,7 @@ class Game:
 
     def update(self, elements: ElementList) -> None:
         pass
+
+    def on_key_down(self, event: pg.event.Event, elements: ElementList):
+            if event.key == pg.K_q:
+                 actions.quit(event, elements, self)

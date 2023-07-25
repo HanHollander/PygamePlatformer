@@ -40,6 +40,10 @@ pg.font.init()
 
 f_SMALL = pg.font.SysFont(name="Corbel", size=16, bold=True, italic=False)
 
-
 # cursor
+
 img_cursor = pg.image.load("./img/cursor.png")
+
+# viking
+
+img_viking = pg.image.load("./img/viking.png")

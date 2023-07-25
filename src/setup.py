@@ -5,9 +5,8 @@ import graphics
 import actions
 from elements import *
 
-def setup_screen():
-    print("> setup_screen()")
 
+def setup_screen():
     size = (config.SCREEN_WIDTH, config.SCREEN_HEIGHT)
     flags = pg.NOFRAME | pg.SCALED | pg.HWSURFACE | pg.DOUBLEBUF
     display = pg.display.set_mode(size, flags, vsync=1)
@@ -17,12 +16,24 @@ def setup_screen():
 
     return display, screen
 
+def setup_elements(elements: ElementList, screen: pg.Surface):
+    setup_background(elements, screen)
+    setup_viking(elements, screen)
+    setup_cursor(elements, screen)
+
 def setup_background(elements: ElementList, screen: pg.Surface):
-    print ("> setup_background()")
-
-    background = SurfaceElement((0, 0), (config.SCREEN_WIDTH, config.SCREEN_HEIGHT))
-
+    background = SurfaceElement(
+        pos=(0, 0), 
+        size=(config.SCREEN_WIDTH, config.SCREEN_HEIGHT))
     elements.append(background)
+
+def setup_viking(elements: ElementList, background: pg.Surface):
+    group = GroupElement(background, GroupType.MISC)
+    group.add(SpriteElement(
+        pos=(100, 50),
+        img=graphics.img_viking
+    ))
+    elements.append(group)
 
 def setup_cursor(elements: ElementList, background: pg.Surface):
     group = GroupElement(background, GroupType.CURSOR)
