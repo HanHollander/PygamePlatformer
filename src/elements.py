@@ -204,13 +204,20 @@ class Cursor(SpriteElement):
 
 class PhysicsSprite(SpriteElement):
 
-    def __init__(self, pos: tuple[int, int], img: pg.Surface):
+    def __init__(self, pos: tuple[int, int], max_velocity: float, velocity: float, direction: float, mass: float, img: pg.Surface):
         SpriteElement.__init__(self, pos, img)
-        self.model = PhysicsObject()
+        self.model = PhysicsObject(pos, max_velocity, velocity, direction, mass)
 
     # override
     def update(self, elements: ElementList, game: "Game"):
         SpriteElement.update(self, elements, game)
+        new_x, new_y = self.model.update_pos()
+        new_rect = pg.Rect(util.get_top_left(self.image.get_width(), self.image.get_height(), new_x, new_y), 
+                            self.image.get_size())
+        
+        # Collision here
+
+        self.rect = new_rect
 
     # override
     def draw(self, screen: pg.Surface):

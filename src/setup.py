@@ -36,8 +36,13 @@ def setup_background(elements: ElementList, screen: pg.Surface):
 
 def setup_viking(elements: ElementList, background: pg.Surface):
     group = GroupElement(background, GroupType.MISC)
-    group.add(SpriteElement(
+    group.add(PhysicsSprite(
         pos=(100, 50),
+        max_velocity=1.0,
+        velocity=0.0,
+        direction=0.0,
+        acceleration=0.0,
+        mass=1,
         img=graphics.img_viking
     ))
     elements.append(group)
