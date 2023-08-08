@@ -204,9 +204,9 @@ class Cursor(SpriteElement):
 
 class PhysicsSprite(SpriteElement):
 
-    def __init__(self, pos: tuple[int, int], max_velocity: float, direction: float, mass: float, img: pg.Surface):
+    def __init__(self, pos: tuple[int, int], max_velocity: float, mass: float, solid: bool, gravity: bool, img: pg.Surface):
         SpriteElement.__init__(self, pos, img)
-        self.model = PhysicsObject(pos, max_velocity, direction, mass)
+        self.model = PhysicsObject(pos, max_velocity, mass, solid, gravity)
 
     # override
     def update(self, elements: ElementList, game: "Game"):
@@ -214,9 +214,24 @@ class PhysicsSprite(SpriteElement):
         new_x, new_y = self.model.update_pos()
         new_rect = pg.Rect(util.get_top_left(self.image.get_width(), self.image.get_height(), new_x, new_y), 
                             self.image.get_size())
+        
 
-        self.rect = new_rect
+        overlaps = False
+        own_mask = pg.mask.from_surface(self.image)
+        for element in elements:
+            if isinstance(element, GroupElement):
+                for sprite in element:
+                    if isinstance(sprite, PhysicsSprite) and sprite.model.solid:
+                        sprite_mask = pg.mask.from_surface(sprite.image)
+                        overlaps = own_mask.overlap(sprite_mask, (sprite.rect.x - self.rect.x, sprite.rect.y - self.rect.y))
+                        if overlaps:
+                            self.model.restore_previous_position()
+        
+        if not overlaps:
+            self.rect = new_rect
 
     # override
     def draw(self, screen: pg.Surface):
         SpriteElement.draw(self, screen)
+
+    def check_collision(self, elements: ElementList)

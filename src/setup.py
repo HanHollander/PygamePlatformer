@@ -39,8 +39,9 @@ def setup_viking(elements: ElementList, background: pg.Surface):
     group.add(PhysicsSprite(
         pos=(100, 50),
         max_velocity=1.0,
-        direction=0.0,
         mass=1,
+        solid=True,
+        gravity=True,
         img=graphics.img_viking
     ))
     elements.append(group)
@@ -51,8 +52,12 @@ def setup_platform(elements: ElementList, background: pg.Surface):
         size=(150, 10)
     )
     platform.fill((255, 255, 255))
-    group.add(SpriteElement(
+    group.add(PhysicsSprite(
         pos=(20, 100),
+        max_velocity=0.0,
+        mass=1,
+        solid=True,
+        gravity=False,
         img=platform
     ))
     elements.append(group)
