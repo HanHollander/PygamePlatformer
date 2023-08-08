@@ -39,9 +39,7 @@ def setup_viking(elements: ElementList, background: pg.Surface):
     group.add(PhysicsSprite(
         pos=(100, 50),
         max_velocity=1.0,
-        velocity=0.0,
         direction=0.0,
-        acceleration=0.0,
         mass=1,
         img=graphics.img_viking
     ))

@@ -14,8 +14,3 @@ def get_deltas(x1: int, y1: int, x2: int, y2: int) -> tuple[int, int]:
 
 def get_top_left(w: int, h: int , x: int, y: int) -> tuple[int, int]:
     return (x - w / 2, y - h / 2)
-
-class Pos:
-    def __init__(self, pos: tuple[int, int]):
-        self.x, self.xf = pos[0]
-        self.y, self.yf = pos[1]
