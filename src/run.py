@@ -3,8 +3,8 @@ import pygame as pg
 import config
 import events
 import setup
-from gamestate import Game
-from elements import Element, ElementList
+from model import *
+from elements import *
 
 def run():
     # setup mouse
@@ -14,37 +14,25 @@ def run():
     display, screen = setup.setup_screen()
     clock = pg.time.Clock()
 
-    # setup elements and groups - NB order is also drawing order
-    elements = ElementList()
-    setup.setup_elements(elements, screen)
-
-    for element in elements:
-        print(str(element))
-
     # setup game
-    game = Game()
+    world_group = GroupElement(screen, GroupType.MISC)
+    game = Game(world_group)
 
     # run main loop
-    main_loop(display, screen, clock, elements, game)
+    main_loop(display, screen, clock, world_group, game)
 
 
-def main_loop(display: pg.Surface, screen: pg.Surface, clock: pg.time.Clock, elements: ElementList, game: Game):
+def main_loop(display: pg.Surface, screen: pg.Surface, clock: pg.time.Clock, world_group: GroupElement, game: Game):
     while True:
         # handle events
         # update the state of elements based on events/player triggers
-        events.handle_events(elements, game)
-        
-        # update elements
-        # update the state of elements based on 
-        for element in elements:
-            element.update(elements, game)
+        events.handle_events(game)
         
         # update game
-        game.update(elements)
+        game.update()
 
         # draw elements
-        for element in elements:
-            element.draw(screen)
+        world_group.draw(screen)
         
         # update screen
         display.blit(screen, (0, 0))

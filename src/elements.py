@@ -7,9 +7,8 @@ from random import random
 import pygame as pg
 
 import graphics
-from model import pg
 import util
-from model import *
+# from model import *
 
 from typing import TYPE_CHECKING, Any, Callable
 if TYPE_CHECKING:
@@ -183,7 +182,7 @@ class SpriteButton(Button, SpriteElement):
 
 # cursor
 
-class Cursor(SpriteElement):
+class CursorElement(SpriteElement):
 
     def __init__(self, pos: tuple[int, int], img: pg.Surface):
         SpriteElement.__init__(self, pos, img)
@@ -206,32 +205,29 @@ class PhysicsSprite(SpriteElement):
 
     def __init__(self, pos: tuple[int, int], max_velocity: float, mass: float, solid: bool, gravity: bool, img: pg.Surface):
         SpriteElement.__init__(self, pos, img)
-        self.model = PhysicsObject(pos, max_velocity, mass, solid, gravity)
 
     # override
     def update(self, elements: ElementList, game: "Game"):
         SpriteElement.update(self, elements, game)
-        new_x, new_y = self.model.update_pos()
-        new_rect = pg.Rect(util.get_top_left(self.image.get_width(), self.image.get_height(), new_x, new_y), 
-                            self.image.get_size())
+        # new_x, new_y = self.model.update_pos()
+        # new_rect = pg.Rect(util.get_top_left(self.image.get_width(), self.image.get_height(), new_x, new_y), 
+        #                     self.image.get_size())
         
 
-        overlaps = False
-        own_mask = pg.mask.from_surface(self.image)
-        for element in elements:
-            if isinstance(element, GroupElement):
-                for sprite in element:
-                    if isinstance(sprite, PhysicsSprite) and sprite.model.solid:
-                        sprite_mask = pg.mask.from_surface(sprite.image)
-                        overlaps = own_mask.overlap(sprite_mask, (sprite.rect.x - self.rect.x, sprite.rect.y - self.rect.y))
-                        if overlaps:
-                            self.model.restore_previous_position()
+        # overlaps = False
+        # own_mask = pg.mask.from_surface(self.image)
+        # for element in elements:
+        #     if isinstance(element, GroupElement):
+        #         for sprite in element:
+        #             if isinstance(sprite, PhysicsSprite) and sprite.model.solid:
+        #                 sprite_mask = pg.mask.from_surface(sprite.image)
+        #                 overlaps = own_mask.overlap(sprite_mask, (sprite.rect.x - self.rect.x, sprite.rect.y - self.rect.y))
+        #                 if overlaps:
+        #                     self.model.restore_previous_position()
         
-        if not overlaps:
-            self.rect = new_rect
+        # if not overlaps:
+        #     self.rect = new_rect
 
     # override
     def draw(self, screen: pg.Surface):
         SpriteElement.draw(self, screen)
-
-    def check_collision(self, elements: ElementList)

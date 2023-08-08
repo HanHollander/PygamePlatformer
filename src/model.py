@@ -3,13 +3,88 @@ import pygame as pg
 import graphics
 import util
 import physics
+from elements import *
+import config
 
 
 import math
 
+class Game:
+
+    def __init__(self, world_group: GroupElement):
+        self.background = Background()
+        world_group.add(self.background.element)
+        self.cursor = Cursor()
+        world_group.add(self.cursor.element)
+
+        platform = pg.Surface(
+            size=(150, 10)
+        )
+        platform.fill((255, 255, 255))
+ 
+        self.physics_objects = [
+            PhysicsObject(
+                pos=(100, 50),
+                max_velocity=1.0,
+                mass=1,
+                solid=True,
+                gravity=True,
+                img=graphics.img_viking
+            ),
+            PhysicsObject(
+                pos=(20, 100),
+                max_velocity=0.0,
+                mass=1,
+                solid=True,
+                gravity=False,
+                img=platform
+            )
+        ]
+        for physics_object in self.physics_objects:
+            world_group.add(physics_object.element)
+
+    def update(self):
+        self.background.update()
+        self.cursor.update()
+        for physics_object in self.physics_objects:
+            physics_object.update()
+
+    def on_mouse_motion(self, event: pg.event.Event):
+        self.cursor.on_mouse_motion(event)
+
+
+class Background:
+    def __init__(self):
+        surface = pg.Surface(
+            size=(config.SCREEN_WIDTH, config.SCREEN_HEIGHT)
+        )
+        surface.fill((20, 20, 20))
+        self.element = SpriteElement(
+            pos=(0, 0),
+            img=surface
+        )
+    
+    def update(self):
+        pass
+
+class Cursor:
+    def __init__(self):
+        self.element = CursorElement(
+            pos=(20, 240 - graphics.img_cursor.get_size()[1] / 2),
+            img=graphics.img_cursor
+        )
+
+    def update(self):
+        pass
+
+    def on_mouse_motion(self, event: pg.event.Event):
+        self.element.rect = pg.Rect(event.pos, (self.element.rect.w, self.element.rect.h))
+
 
 class PhysicsObject:
-    def __init__(self, pos, max_velocity, mass, solid, gravity):
+    def __init__(self, pos, max_velocity, mass, solid, gravity, img):
+        self.element = SpriteElement(pos, img)
+
         self.position = physics.Position(pos)  # (px, px)
         self.force_vectors = [physics.c_GRAVITY] if gravity else []
         self.max_velocity = max_velocity  # px/tick
@@ -17,6 +92,13 @@ class PhysicsObject:
         self.mass = mass  # kg
         self.solid = solid
         self.previous_position = self.position
+
+    def update(self):
+        new_x, new_y = self.update_pos()
+        new_rect = pg.Rect(util.get_top_left(self.element.image.get_width(), self.element.image.get_height(), new_x, new_y), 
+                            self.element.image.get_size())
+
+        self.element.rect = new_rect
 
     def update_pos(self) -> tuple[int, int]:
         self.previous_position = self.position
