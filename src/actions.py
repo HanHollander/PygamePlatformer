@@ -1,11 +1,10 @@
 import sys
 import pygame as pg
 from elements import *
-from gamestate import Game
 
-def nop(event: pg.event.Event, elements: ElementList, game: Game):
+def nop():
     pass
 
-def quit(event: pg.event.Event, elements: ElementList, game: Game):
+def quit():
     pg.quit()
     sys.exit()
