@@ -2,15 +2,13 @@ import pygame as pg
 
 import actions
 from elements import *
-from gamestate import Game
+from model import Game
 
 def handle_events(game: Game):
     for event in pg.event.get():
 
         # quit
         if event.type == pg.QUIT:
-            actions.quit()
-        if event.type == pg.KEYDOWN and event.key == pg.K_q:
             actions.quit()
 
         # mouse click
@@ -23,7 +21,9 @@ def handle_events(game: Game):
         if event.type == pg.MOUSEMOTION:
             game.on_mouse_motion(event)
 
-    
+        # on key down
+        if event.type == pg.KEYDOWN:
+            game.on_key_down(event);
 
 
 # # mouse down

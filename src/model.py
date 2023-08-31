@@ -1,13 +1,12 @@
-from math import sqrt
+import math
 import pygame as pg
+
 import graphics
 import util
 import physics
 from elements import *
 import config
-
-
-import math
+import actions
 
 class Game:
 
@@ -32,7 +31,7 @@ class Game:
                 img=graphics.img_viking
             ),
             PhysicsObject(
-                pos=(20, 100),
+                pos=(100, 100),
                 max_velocity=0.0,
                 mass=1,
                 solid=True,
@@ -51,6 +50,10 @@ class Game:
 
     def on_mouse_motion(self, event: pg.event.Event):
         self.cursor.on_mouse_motion(event)
+
+    def on_key_down(self, event: pg.event.Event, elements: ElementList):
+            if event.key == pg.K_q:
+                 actions.quit(event, elements, self)
 
 
 class Background:
@@ -94,15 +97,14 @@ class PhysicsObject:
         self.previous_position = self.position
 
     def update(self):
-        new_x, new_y = self.update_pos()
-        new_rect = pg.Rect(util.get_top_left(self.element.image.get_width(), self.element.image.get_height(), new_x, new_y), 
+        self.previous_position = self.position
+        self.apply_force()
+        new_rect = pg.Rect(util.get_top_left(self.element.image.get_width(), self.element.image.get_height(), self.position.x, self.position.y), 
                             self.element.image.get_size())
 
         self.element.rect = new_rect
 
-    def update_pos(self) -> tuple[int, int]:
-        self.previous_position = self.position
-
+    def apply_force(self):
         # calculate force
         force_sum_x = 0
         force_sum_y = 0
@@ -119,7 +121,7 @@ class PhysicsObject:
         self.position.yf = self.position.yf + self.velocity.y
         self.position.x = math.floor(self.position.xf)
         self.position.y = math.floor(self.position.yf)
-        return self.position.x, self.position.y
+        
     
     def restore_previous_position(self):
         self.position = self.previous_position
