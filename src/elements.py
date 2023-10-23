@@ -47,7 +47,9 @@ class Element:
 
 class SpriteElement(Element, pg.sprite.Sprite):
 
-    def __init__(self, pos: tuple[int, int], img: pg.Surface):
+    def __init__(self, 
+                 pos: tuple[int, int], 
+                 img: pg.Surface):
         Element.__init__(self, pos, img.get_size())
         pg.sprite.Sprite.__init__(self)
         self.image = img.copy()
@@ -72,7 +74,9 @@ class GroupType(Enum):
 
 class GroupElement(Element, pg.sprite.Group):
     
-    def __init__(self, background: pg.Surface, type: GroupType):
+    def __init__(self, 
+                 background: pg.Surface, 
+                 type: GroupType):
         Element.__init__(self)
         pg.sprite.Group.__init__(self)
         self.background = background
@@ -111,7 +115,9 @@ class ElementList(list[Element]):
 
 class SurfaceElement(Element, pg.Surface):
 
-    def __init__(self, pos: tuple[int, int], size: tuple[int, int]):
+    def __init__(self,
+                  pos: tuple[int, int], 
+                  size: tuple[int, int]):
         Element.__init__(self, pos, size)
         pg.Surface.__init__(self, size)
 
@@ -132,7 +138,8 @@ class SurfaceElement(Element, pg.Surface):
 
 class Button():
     
-    def __init__(self, action: Callable[[ElementList, "Game"], None]):
+    def __init__(self, 
+                 action: Callable[[ElementList, "Game"], None]):
         self.action = action
         self.is_down = False
 
@@ -149,7 +156,12 @@ class Button():
 
 class SpriteButton(Button, SpriteElement):
 
-    def __init__(self, pos: tuple[int, int], action, img: pg.Surface, img_pressed: pg.Surface, img_hover: pg.Surface):
+    def __init__(self, 
+                 pos: tuple[int, int], 
+                 action: Callable[[ElementList, "Game"], None], 
+                 img: pg.Surface, 
+                 img_pressed: pg.Surface, 
+                 img_hover: pg.Surface):
         Button.__init__(self, action)
         SpriteElement.__init__(self, pos, img)
         self.img = img
@@ -201,32 +213,18 @@ class CursorElement(SpriteElement):
 
 # physics sprite
 
-class PhysicsSprite(SpriteElement):
+class PhysicsElement(SpriteElement):
 
-    def __init__(self, pos: tuple[int, int], max_velocity: float, mass: float, solid: bool, gravity: bool, img: pg.Surface):
+    def __init__(self, 
+                 pos: tuple[int, int], 
+                 img: pg.Surface):
         SpriteElement.__init__(self, pos, img)
+        self.mask = pg.mask.from_surface(self.image)
+        self.old_rect = self.rect.copy()
 
     # override
     def update(self, elements: ElementList, game: "Game"):
         SpriteElement.update(self, elements, game)
-        # new_x, new_y = self.model.update_pos()
-        # new_rect = pg.Rect(util.get_top_left(self.image.get_width(), self.image.get_height(), new_x, new_y), 
-        #                     self.image.get_size())
-        
-
-        # overlaps = False
-        # own_mask = pg.mask.from_surface(self.image)
-        # for element in elements:
-        #     if isinstance(element, GroupElement):
-        #         for sprite in element:
-        #             if isinstance(sprite, PhysicsSprite) and sprite.model.solid:
-        #                 sprite_mask = pg.mask.from_surface(sprite.image)
-        #                 overlaps = own_mask.overlap(sprite_mask, (sprite.rect.x - self.rect.x, sprite.rect.y - self.rect.y))
-        #                 if overlaps:
-        #                     self.model.restore_previous_position()
-        
-        # if not overlaps:
-        #     self.rect = new_rect
 
     # override
     def draw(self, screen: pg.Surface):

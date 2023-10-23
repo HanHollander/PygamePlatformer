@@ -1,4 +1,4 @@
-import math
+from pygame import Vector2
 
 class Position:
     def __init__(self, pos: tuple[int, int]):
@@ -7,12 +7,4 @@ class Position:
         self.xf = self.x
         self.yf = self.y
 
-class Vector2:
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
-    
-    def __str__(self) -> str:
-        return "[" + str(self.x) + "," + str(self.y) + "]"
-
-c_GRAVITY = Vector2(0, 9.81)  # kg px/tick²
+c_GRAVITY = Vector2(0, 9.81)  # m px/tick²
