@@ -5,6 +5,7 @@ import events
 import setup
 from model import *
 from elements import *
+from view import View
 
 def run():
     # setup mouse
@@ -14,15 +15,20 @@ def run():
     display, screen = setup.setup_screen()
     clock = pg.time.Clock()
 
+    # Background layers
+
     # setup game
-    world_group = GroupElement(screen, GroupType.MISC)
-    game = Game(world_group)
+    view = View()
+    game = Game(view)
+
+    # Foreground layers
+    # foreground_groups = setup.setup_foreground()
 
     # run main loop
-    main_loop(display, screen, clock, world_group, game)
+    main_loop(display, screen, clock, view, game)
 
 
-def main_loop(display: pg.Surface, screen: pg.Surface, clock: pg.time.Clock, world_group: GroupElement, game: Game):
+def main_loop(display: pg.Surface, screen: pg.Surface, clock: pg.time.Clock, view: View, game: Game):
     while True:
         # handle events
         # update the state of elements based on events/player triggers
@@ -32,7 +38,7 @@ def main_loop(display: pg.Surface, screen: pg.Surface, clock: pg.time.Clock, wor
         game.update()
 
         # draw elements
-        world_group.draw(screen)
+        view.draw(screen)
         
         # update screen
         display.blit(screen, (0, 0))

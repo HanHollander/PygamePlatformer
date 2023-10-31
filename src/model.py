@@ -9,15 +9,13 @@ from physics import Position, c_GRAVITY
 from elements import GroupElement, SpriteElement, CursorElement, PhysicsElement
 import config
 import actions
-
+from view import View
 
 class Game:
 
-    def __init__(self, world_group: GroupElement):
-        self.background = Background()
-        world_group.add(self.background.element)
+    def __init__(self, view: View):
         self.cursor = Cursor()
-        world_group.add(self.cursor.element)
+        view.add(self.cursor.element)
 
         platform = pg.Surface(
             size=(150, 10)
@@ -47,10 +45,9 @@ class Game:
             ))
 
         for physics_object in self.physics_objects:
-            world_group.add(physics_object.element)
+            view.add(physics_object.element)
 
     def update(self):
-        self.background.update()
         self.cursor.update()
         for physics_object in self.physics_objects:
             physics_object.update()
@@ -61,22 +58,6 @@ class Game:
     def on_key_down(self, event: pg.event.Event):
         if event.key == pg.K_q:
             actions.quit()
-
-
-class Background:
-
-    def __init__(self):
-        surface = pg.Surface(
-            size=(config.SCREEN_WIDTH, config.SCREEN_HEIGHT)
-        )
-        surface.fill((20, 20, 20))
-        self.element = SpriteElement(
-            pos=(0, 0),
-            img=surface
-        )
-
-    def update(self):
-        pass
 
 
 class Cursor:
