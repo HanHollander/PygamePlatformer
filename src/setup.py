@@ -16,6 +16,11 @@ def setup_screen():
 
     return display, screen
 
+def setup_foreground() -> [GroupElement]:
+    layers = []
+    ui_layer = GroupElement()
+    
+
 # def setup_elements(elements: ElementList, screen: pg.Surface):
 #     setup_background(elements, screen)
 #     setup_viking(elements, screen)

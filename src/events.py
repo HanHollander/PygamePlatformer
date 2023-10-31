@@ -23,7 +23,7 @@ def handle_events(game: Game):
 
         # on key down
         if event.type == pg.KEYDOWN:
-            game.on_key_down(event);
+            game.on_key_down(event)
 
 
 # # mouse down
