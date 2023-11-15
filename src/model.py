@@ -5,7 +5,7 @@ from pygame import Vector2
 import collision
 import graphics
 import util
-from physics import Position, c_GRAVITY
+from physics import Direction, Position, c_GRAVITY
 from elements import GroupElement, SpriteElement, CursorElement, PhysicsElement
 import config
 import actions
@@ -97,7 +97,7 @@ class PhysicsObject:
                                                  self.element.image.get_height(),
                                                  pos[0],
                                                  pos[1]))  # (px, px)
-        self.const_forces = [c_GRAVITY] if gravity else []
+        self.const_forces = [c_GRAVITY * mass] if gravity else []
         self.temp_forces = []
         self.max_velocity = max_velocity  # px/tick
         self.velocity = Vector2(0, 0)  # px/tick
@@ -107,8 +107,6 @@ class PhysicsObject:
     def update(self):
         # apply collisions (update position)
         self.apply_force()
-
-        self.sync_element()
 
         # resolve collisions (update position again)
         # collisions = self.get_collisions()
@@ -125,25 +123,31 @@ class PhysicsObject:
                                     self.element.image.get_size())
 
     def apply_force(self):
+        # add reaction forces and limit velocity
+        reaction_forces: list[Vector2] = []
+        for direction in Direction:
+            if self.is_touching(direction):
+                for force in (self.const_forces + self.temp_forces):
+                    if force * direction.value > 0:
+                        reaction_forces.append(force.elementwise() * (direction.absolute()) * -1)
+                if self.velocity * direction.value > 0:
+                    self.velocity = self.velocity - (self.velocity.elementwise() * direction.absolute())
+        
         # calculate force
         force_vector_sum = sum(self.const_forces, Vector2())
         force_vector_sum = sum(self.temp_forces, force_vector_sum)
-
-        # check if standing
-        if self.is_standing():
-            force_vector_sum -= c_GRAVITY
+        force_vector_sum = sum(reaction_forces, force_vector_sum)
 
         # apply force to velocity
-        self.velocity.x = min(
-            self.max_velocity, self.velocity.x + force_vector_sum.x / self.mass)
-        self.velocity.y = min(
-            self.max_velocity, self.velocity.y + force_vector_sum.y / self.mass)
+        self.velocity.x = self.velocity.x + force_vector_sum.x / self.mass
+        self.velocity.y = self.velocity.y + force_vector_sum.y / self.mass
 
         # apply velocity to position
         self.position.xf = self.position.xf + self.velocity.x
         self.position.x = math.floor(self.position.xf)
         self.position.yf = self.position.yf + self.velocity.y
         self.position.y = math.floor(self.position.yf)
+        self.sync_element()
 
     def get_collisions(self) -> dict["PhysicsObject", tuple[int, int]]:
         collisions = {}
@@ -167,13 +171,13 @@ class PhysicsObject:
                     return True
         return False
     
-    def is_standing(self) -> bool:
+    def is_touching(self, direction: Direction) -> None:
         for i in range(0, len(self.physics_objects)):
             other = self.physics_objects[i]
             if other is not self and other.solid:
-                overlap = self.element.mask.overlap(other.element.mask, 
-                                          (other.element.rect.x - self.element.rect.x, 
-                                           other.element.rect.y - self.element.rect.y - 1))
+                overlap = self.element.mask.overlap(other.element.mask,
+                                          (other.element.rect.x - self.element.rect.x - direction.value.x,
+                                           other.element.rect.y - self.element.rect.y - direction.value.y))
                 if overlap:
                     return True
         return False
@@ -214,5 +218,9 @@ class Player(PhysicsObject):
                                gravity)
         
     def on_key_down(self, event: pg.event.Event):
-        if event.key == pg.K_UP:
-            self.temp_forces.append(-1.5 * c_GRAVITY)
+        if event.key == pg.K_UP and self.is_touching(Direction.DOWN):
+            self.temp_forces.append(-20 * c_GRAVITY)
+        if event.key == pg.K_LEFT:
+            self.temp_forces.append(Vector2(-2,0))
+        if event.key == pg.K_RIGHT:
+            self.temp_forces.append(Vector2(2,0))
