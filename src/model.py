@@ -5,7 +5,7 @@ from pygame import Vector2
 import collision
 import graphics
 import util
-from physics import Direction, Position, c_GRAVITY
+from physics import Direction, Position, c_GRAVITY, c_AIR_DRAG_CONSTANT, c_FLOOR_DRAG_CONSTANT
 from elements import GroupElement, SpriteElement, CursorElement, PhysicsElement
 import config
 import actions
@@ -62,6 +62,11 @@ class Game:
         for physics_object in self.physics_objects:
             if isinstance(physics_object, Player):
                 physics_object.on_key_down(event)
+    
+    def on_key_pressed(self, event: pg.event.Event):
+        for physics_object in self.physics_objects:
+            if isinstance(physics_object, Player):
+                physics_object.on_key_pressed(event)
 
 
 class Cursor:
@@ -133,10 +138,19 @@ class PhysicsObject:
                 if self.velocity * direction.value > 0:
                     self.velocity = self.velocity - (self.velocity.elementwise() * direction.absolute())
         
+        # add drag F_D = C_D * A * rho * V² / 2
+        # F_D = drag force
+        # A = reference area
+        # rho is fluid density
+        # V = flow velocity
+        # simplified: F_D = K * V² where K = C_D * A * rho / 2
+        air_drag_force = -1 * c_AIR_DRAG_CONSTANT * util.spow_v2(self.velocity, 2)
+
         # calculate force
         force_vector_sum = sum(self.const_forces, Vector2())
         force_vector_sum = sum(self.temp_forces, force_vector_sum)
         force_vector_sum = sum(reaction_forces, force_vector_sum)
+        force_vector_sum += air_drag_force
 
         # apply force to velocity
         self.velocity.x = self.velocity.x + force_vector_sum.x / self.mass

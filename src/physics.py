@@ -1,5 +1,6 @@
 from enum import Enum
 from pygame import Vector2
+from util import pow_v2
 
 class Position:
     def __init__(self, pos: tuple[int, int]):
@@ -15,6 +16,8 @@ class Direction(Enum):
     DOWN = Vector2(0, 1)
 
     def absolute(self) -> Vector2:
-        return self.value.elementwise() * self.value
+        return pow_v2(self.value, 2)
 
 c_GRAVITY = Vector2(0, 0.2)  # m px/tick²
+c_AIR_DRAG_CONSTANT = 0.08
+c_FLOOR_DRAG_CONSTANT = 0.34
