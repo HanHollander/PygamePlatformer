@@ -38,3 +38,6 @@ def spow_v2(v: pg.Vector2, p: int) -> pg.Vector2:
     
 def abs_v2(v: pg.Vector2) -> pg.Vector2:
     return pg.Vector2(abs(v.x), abs(v.y))
+
+def mag_v2(v: pg.Vector2) -> int:
+    return math.sqrt(math.pow(v.x, 2) + math.pow(v.y, 2))
