@@ -5,7 +5,7 @@ from pygame import Vector2
 import collision
 import graphics
 import util
-from physics import *
+import physics as ps
 from elements import GroupElement, SpriteElement, CursorElement, PhysicsElement
 import config
 import actions
@@ -21,9 +21,14 @@ class Game:
         view.add(self.cursor.element)
 
         platform = pg.Surface(
-            size=(150, 10)
+            size=(300, 10)
         )
         platform.fill((255, 255, 255))
+
+        wall = pg.Surface(
+            size=(10, 100)
+        )
+        wall.fill((118, 29, 181))
 
         self.physics_objects = []
         self.physics_objects.append(
@@ -38,8 +43,18 @@ class Game:
             ))
         self.physics_objects.append(
             PhysicsObject(
-                pos=(100, 100),
+                pos=(10, 170),
                 img=platform,
+                game=self,
+                max_velocity=0.0,
+                mass=1,
+                solid=True,
+                gravity=False
+            ))
+        self.physics_objects.append(
+            PhysicsObject(
+                pos=(10, 60),
+                img=wall,
                 game=self,
                 max_velocity=0.0,
                 mass=1,
@@ -102,11 +117,11 @@ class PhysicsObject:
 
         self.game = game
 
-        self.position = Position(util.get_middle(self.element.image.get_width(),
+        self.position = ps.Position(util.get_middle(self.element.image.get_width(),
                                                  self.element.image.get_height(),
                                                  pos[0],
                                                  pos[1]))  # (px, px)
-        self.const_forces = [c_GRAVITY * mass] if gravity else []
+        self.const_forces = [ps.c_GRAVITY * mass] if gravity else []
         self.temp_forces = []
         self.max_velocity = max_velocity  # px/tick
         self.velocity = Vector2(0, 0)  # px/tick
@@ -134,7 +149,7 @@ class PhysicsObject:
     def apply_force(self):
         # add reaction forces and limit velocity
         reaction_forces: list[Vector2] = []
-        for direction in Direction:
+        for direction in ps.Direction:
             if self.is_touching(direction):
                 for force in (self.const_forces + self.temp_forces):
                     if force * direction.value > 0:
@@ -143,10 +158,10 @@ class PhysicsObject:
                     self.velocity = self.velocity - (self.velocity.elementwise() * direction.absolute())
 
         # clip velocity
-        if util.mag_v2(self.velocity) < c_VELOCITY_CLIPPING_TRESHOLD_LOW:
+        if util.mag_v2(self.velocity) < ps.c_VELOCITY_CLIPPING_TRESHOLD_LOW:
             self.velocity = Vector2(0, 0)
-        elif util.mag_v2(self.velocity) > c_VELOCITY_CLIPPING_TRESHOLD_HIGH:
-            self.velocity = c_VELOCITY_CLIPPING_TRESHOLD_HIGH
+        # elif util.mag_v2(self.velocity) > c_VELOCITY_CLIPPING_TRESHOLD_HIGH:
+        #     self.velocity = Vector2(c_VELOCITY_CLIPPING_TRESHOLD_HIGH, c_VELOCITY_CLIPPING_TRESHOLD_HIGH)
         
         # add drag F_D = C_D * A * rho * V² / 2
         # F_D = drag force
@@ -156,16 +171,30 @@ class PhysicsObject:
         # simplified: F_D = K * V² where K = C_D * A * rho / 2
         drag_forces: list[Vector2] = []
         # air drag
-        drag_forces.append(-1 * c_AIR_DRAG_CONSTANT * util.spow_v2(self.velocity, 2))
-        # ground drag (only when on ground and not pressing left/right (TODO remove this condition))
-        if self.is_touching(Direction.DOWN):#and not (pg.K_LEFT in self.game.keys_down or pg.K_RIGHT in self.game.keys_down):
-            drag_forces.append(-1 * c_GROUND_DRAG_CONSTANT * util.spow_v2(self.velocity, 2))
+        # TODO maybe magnitude squared then split into vector idk?
+        drag_forces.append(-1 * ps.c_AIR_DRAG_CONSTANT * util.spow_v2(self.velocity, 2))
+
+        # add dry friction F_f = mu * N
+        # F_f = friction force opposed to velocity direction
+        # mu = friction coefficient (constant dimensionless)
+        # N = normal force
+        friction_forces: list[Vector2] = []
+        # static/kinetic friction
+        for reaction_force in reaction_forces:
+            normal_direction = ps.Direction.get_direction(reaction_force)
+            if normal_direction in (ps.Direction.UP, ps.Direction.DOWN) and self.velocity.x != 0:
+                friction_direction = ps.Direction.RIGHT if self.velocity.x < 0 else ps.Direction.LEFT
+                friction_forces.append(ps.c_FRICTION_COEFFICIENT * abs(reaction_force.y) * friction_direction.value)
+            elif normal_direction in (ps.Direction.LEFT, ps.Direction.RIGHT) and self.velocity.y != 0:
+                friction_direction = ps.Direction.DOWN if self.velocity.y < 0 else ps.Direction.UP
+                friction_forces.append(ps.c_FRICTION_COEFFICIENT * abs(reaction_force.x) * friction_direction.value)
 
         # calculate force
         force_vector_sum = sum(self.const_forces, Vector2())
         force_vector_sum = sum(self.temp_forces, force_vector_sum)
         force_vector_sum = sum(reaction_forces, force_vector_sum)
         force_vector_sum = sum(drag_forces, force_vector_sum)
+        force_vector_sum = sum(friction_forces, force_vector_sum)
 
         # apply force to velocity
         self.velocity.x = self.velocity.x + force_vector_sum.x / self.mass
@@ -200,7 +229,7 @@ class PhysicsObject:
                     return True
         return False
     
-    def is_touching(self, direction: Direction) -> None:
+    def is_touching(self, direction: ps.Direction) -> None:
         for i in range(0, len(self.game.physics_objects)):
             other = self.game.physics_objects[i]
             if other is not self and other.solid:
@@ -252,12 +281,12 @@ class Player(PhysicsObject):
 
     def add_player_input_forces(self):
         for key in self.game.keys_down:
-            if key == pg.K_UP and self.is_touching(Direction.DOWN):
-                self.temp_forces.append(-25 * c_GRAVITY)
+            if key == pg.K_UP and self.is_touching(ps.Direction.DOWN):
+                self.temp_forces.append(-50 *ps.c_GRAVITY)
             elif key == pg.K_LEFT:
-                self.temp_forces.append(Vector2(-0.8, 0))
+                self.temp_forces.append(Vector2(-0.4, 0))
             elif key == pg.K_RIGHT:
-                self.temp_forces.append(Vector2(0.8, 0))
+                self.temp_forces.append(Vector2(0.4, 0))
         
     def on_key_down(self, event: pg.event.Event):
         pass

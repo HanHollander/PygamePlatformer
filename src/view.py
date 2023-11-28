@@ -5,7 +5,7 @@ from config import SCREEN_HEIGHT, SCREEN_WIDTH
 class ViewPort:
 
     def __init__(self) -> None:
-        self.camera = pg.Rect(20, 20, SCREEN_WIDTH, SCREEN_HEIGHT)
+        self.camera = pg.Rect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
 
 class View(pg.sprite.Group):
     

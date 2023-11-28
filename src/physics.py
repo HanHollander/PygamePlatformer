@@ -17,9 +17,23 @@ class Direction(Enum):
 
     def absolute(self) -> Vector2:
         return pow_v2(self.value, 2)
+    
+    @staticmethod
+    def get_direction(v: Vector2) -> "Direction":
+        if v.x < 0:
+            return Direction.LEFT
+        elif v.y < 0:
+            return Direction.UP
+        elif v.x > 0:
+            return Direction.RIGHT
+        elif v.y > 0:
+            return Direction.DOWN
+        raise Exception(f"Should not happen: {v}")
+        
 
 c_GRAVITY = Vector2(0, 0.2)  # m px/tick²
-c_AIR_DRAG_CONSTANT = 0.08
+c_AIR_DRAG_CONSTANT = 0.008
 c_GROUND_DRAG_CONSTANT = 0.2
 c_VELOCITY_CLIPPING_TRESHOLD_LOW = 0.15
 c_VELOCITY_CLIPPING_TRESHOLD_HIGH = 999.9
+c_FRICTION_COEFFICIENT = 1.1
