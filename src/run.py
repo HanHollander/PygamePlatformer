@@ -1,3 +1,4 @@
+import time
 import pygame as pg
 
 import config
@@ -29,13 +30,16 @@ def run():
 
 
 def main_loop(display: pg.Surface, screen: pg.Surface, clock: pg.time.Clock, view: View, game: Game):
+    previous_time = time.time()
     while True:
         # handle events
         # update the state of elements based on events/player triggers
         events.handle_events(game)
         
         # update game
-        game.update()
+        dt = time.time() - previous_time
+        previous_time = time.time()
+        game.update(dt)
 
         # draw elements
         view.draw(screen)
@@ -44,5 +48,5 @@ def main_loop(display: pg.Surface, screen: pg.Surface, clock: pg.time.Clock, vie
         display.blit(screen, (0, 0))
         pg.display.flip()
 
-        # tick
-        clock.tick(config.FRAMERATE)
+        # todo limit framerate
+        time.sleep(0.02)
