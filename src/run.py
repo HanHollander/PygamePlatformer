@@ -5,6 +5,7 @@ import pygame as pg
 import config
 import events
 import setup
+import debug
 from model import *
 from elements import *
 from view import View
@@ -43,6 +44,9 @@ def main_loop(display: pg.Surface, screen: pg.Surface, clock: pg.time.Clock, vie
 
         # draw elements
         view.draw(screen)
+
+        # debug info
+        if config.DEBUG_INFO: debug.display_debug(screen)
         
         # update screen
         display.blit(screen, (0, 0))

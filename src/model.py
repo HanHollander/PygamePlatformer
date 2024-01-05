@@ -9,6 +9,7 @@ import physics as ps
 from elements import GroupElement, SpriteElement, CursorElement, PhysicsElement
 import config
 import actions
+import debug
 from view import View
 
 
@@ -190,6 +191,7 @@ class PhysicsObject:
         force_vector_sum = sum(reaction_forces, force_vector_sum)
         force_vector_sum = sum(drag_forces, force_vector_sum)
         force_vector_sum = sum(friction_forces, force_vector_sum)
+        if config.DEBUG_INFO and isinstance(self, Player): debug.debug["force vector sum"] = force_vector_sum
 
         # apply force to velocity
         self.velocity.x = self.velocity.x + force_vector_sum.x / self.mass
@@ -271,6 +273,9 @@ class Player(PhysicsObject):
     def update(self, dt: float):
         self.add_player_input_forces()
         PhysicsObject.update(self, dt)
+        if config.DEBUG_INFO: 
+            debug.debug["velocity"] = self.velocity
+            debug.debug["position"] = self.position
 
     def add_player_input_forces(self):
         for key in self.game.keys_down:
