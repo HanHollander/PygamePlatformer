@@ -153,12 +153,6 @@ class PhysicsObject:
                 if self.velocity * direction.value > 0:
                     # BOUNCE 2*
                     self.velocity = self.velocity - (self.velocity.elementwise() * direction.absolute())
-
-        # clip velocity
-        if util.mag_v2(self.velocity) < ps.c_VELOCITY_CLIPPING_TRESHOLD_LOW:
-            self.velocity = Vector2(0, 0)
-        elif util.mag_v2(self.velocity) > ps.c_VELOCITY_CLIPPING_TRESHOLD_HIGH:
-            self.velocity = Vector2(ps.c_VELOCITY_CLIPPING_TRESHOLD_HIGH, ps.c_VELOCITY_CLIPPING_TRESHOLD_HIGH)
         
         # add drag F_D = C_D * A * rho * V² / 2
         # F_D = drag force
@@ -187,16 +181,45 @@ class PhysicsObject:
                 friction_forces.append(ps.c_FRICTION_COEFFICIENT * abs(reaction_force.x) * friction_direction.value)
 
         # calculate force
+        if config.DEBUG_INFO and isinstance(self, Player): 
+            debug.debug["const forces"] = self.const_forces
+            debug.debug["temp forces"] = self.temp_forces
+            debug.debug["reaction forces"] = reaction_forces
+            debug.debug["drag forces"] = drag_forces
+            debug.debug["friction forces"] = friction_forces
         force_vector_sum = sum(self.const_forces, Vector2())
         force_vector_sum = sum(self.temp_forces, force_vector_sum)
         force_vector_sum = sum(reaction_forces, force_vector_sum)
         force_vector_sum = sum(drag_forces, force_vector_sum)
         force_vector_sum = sum(friction_forces, force_vector_sum)
-        if config.DEBUG_INFO and isinstance(self, Player): debug.debug["force vector sum"] = force_vector_sum
+
+        # clip force
+        if config.DEBUG_INFO: debug.debug["effective force clipping"] = (ps.c_FORCE_CLIPPING_TRESHOLD * dt)
+        if force_vector_sum.x < -ps.c_FORCE_CLIPPING_TRESHOLD * dt:
+            force_vector_sum = Vector2(-ps.c_FORCE_CLIPPING_TRESHOLD, force_vector_sum.y)
+        if force_vector_sum.y < -ps.c_FORCE_CLIPPING_TRESHOLD* dt:
+            force_vector_sum = Vector2(force_vector_sum.x, -ps.c_FORCE_CLIPPING_TRESHOLD)
+        if force_vector_sum.x > ps.c_FORCE_CLIPPING_TRESHOLD * dt:
+            force_vector_sum = Vector2(ps.c_FORCE_CLIPPING_TRESHOLD, force_vector_sum.y)
+        if force_vector_sum.y > ps.c_FORCE_CLIPPING_TRESHOLD* dt:
+            force_vector_sum = Vector2(force_vector_sum.x, ps.c_FORCE_CLIPPING_TRESHOLD)
+
+        # debug force
+        if config.DEBUG_INFO and isinstance(self, Player):
+            debug.debug["force vector sum"] = force_vector_sum
 
         # apply force to velocity
-        self.velocity.x = self.velocity.x + force_vector_sum.x / self.mass
-        self.velocity.y = self.velocity.y + force_vector_sum.y / self.mass
+        self.velocity.x = self.velocity.x + force_vector_sum.x / self.mass * dt
+        self.velocity.y = self.velocity.y + force_vector_sum.y / self.mass * dt
+
+        # clip velocity
+        if config.DEBUG_INFO: debug.debug["effective velocity clipping"] = (ps.c_VELOCITY_CLIPPING_TRESHOLD_LOW * dt, ps.c_VELOCITY_CLIPPING_TRESHOLD_HIGH * dt)
+        if util.mag_v2(self.velocity) < ps.c_VELOCITY_CLIPPING_TRESHOLD_LOW * dt:
+            self.velocity = Vector2(0, 0)
+        if self.velocity.x > ps.c_VELOCITY_CLIPPING_TRESHOLD_HIGH * dt:
+            self.velocity = Vector2(ps.c_VELOCITY_CLIPPING_TRESHOLD_HIGH, self.velocity.y)
+        if self.velocity.y > ps.c_VELOCITY_CLIPPING_TRESHOLD_HIGH * dt:
+            self.velocity = Vector2(self.velocity.x, ps.c_VELOCITY_CLIPPING_TRESHOLD_HIGH)
 
         # apply velocity to position
         self.position.xf = self.position.xf + self.velocity.x * dt
@@ -274,6 +297,8 @@ class Player(PhysicsObject):
     def update(self, dt: float):
         self.add_player_input_forces()
         PhysicsObject.update(self, dt)
+        
+        # debug velocity and position
         if config.DEBUG_INFO: 
             debug.debug["velocity"] = self.velocity
             debug.debug["position"] = self.position
@@ -281,11 +306,11 @@ class Player(PhysicsObject):
     def add_player_input_forces(self):
         for key in self.game.keys_down:
             if key == pg.K_UP and self.is_touching(ps.Direction.DOWN):
-                self.temp_forces.append(-50 * ps.c_GRAVITY)
+                self.temp_forces.append(-25 * ps.c_GRAVITY)
             elif key == pg.K_LEFT:
-                self.temp_forces.append(Vector2(-20, 0))
+                self.temp_forces.append(Vector2(-500, 0))
             elif key == pg.K_RIGHT:
-                self.temp_forces.append(Vector2(20, 0))
+                self.temp_forces.append(Vector2(500, 0))
         
     def on_key_down(self, event: pg.event.Event):
         pass

@@ -60,5 +60,6 @@ def main_loop(display: pg.Surface, clock: pg.time.Clock, view: View, game: Game,
         now = time.time()
         dt = now - prev_time
         prev_time = now
-        debug.debug["DT"] = dt
-        debug.debug["FPS"] = int(1 / dt)
+        if config.DEBUG_INFO:
+            debug.debug["DT"] = dt
+            debug.debug["FPS"] = int(round(1 / dt))

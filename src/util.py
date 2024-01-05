@@ -41,3 +41,15 @@ def abs_v2(v: pg.Vector2) -> pg.Vector2:
 
 def mag_v2(v: pg.Vector2) -> int:
     return math.sqrt(math.pow(v.x, 2) + math.pow(v.y, 2))
+
+def str_v2(v: pg.Vector2) -> str:
+    return "[" + str(v.x) + ", " + str(v.y) + "]"
+
+def str_v2_list(l: list[pg.Vector2]):
+    str = "["
+    for v in l:
+        str += str_v2(v)
+        str += ", "
+    str = str[:-2]
+    str += "]"
+    return str
