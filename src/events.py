@@ -2,9 +2,9 @@ import pygame as pg
 
 import actions
 from elements import *
-from model import Game
+from model import Game, UILayer
 
-def handle_events(game: Game):
+def handle_events(game: Game, ui_layer: UILayer):
     for event in pg.event.get():
 
         # quit
@@ -19,7 +19,7 @@ def handle_events(game: Game):
 
         # mouse movement
         if event.type == pg.MOUSEMOTION:
-            game.on_mouse_motion(event)
+            ui_layer.on_mouse_motion(event)
 
         # on key down
         if event.type == pg.KEYDOWN:
