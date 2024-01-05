@@ -1,4 +1,6 @@
 from enum import Enum
+import os
+
 import pygame as pg
 import config
 
@@ -39,6 +41,8 @@ c_LIGHT_GRAY = (148, 148, 148)  # 949494
 pg.font.init()
 
 f_SMALL = pg.font.SysFont(name="Corbel", size=16, bold=True, italic=False)
+c_f_DEBUG_SIZE = 16
+f_DEBUG = pg.font.Font(os.path.join("font", "rainyhearts.ttf"), c_f_DEBUG_SIZE)
 
 # cursor
 

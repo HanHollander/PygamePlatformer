@@ -9,6 +9,9 @@ class Position:
         self.xf = self.x
         self.yf = self.y
 
+    def __str__(self) -> str:
+        return "[" + str(self.x) + ", " + str(self.y) + "]"
+
 class Direction(Enum):
     LEFT = Vector2(-1, 0)
     RIGHT = Vector2(1, 0)
