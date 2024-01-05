@@ -6,14 +6,14 @@ import setup
 import debug
 from model import *
 from elements import *
-from view import View
+from view import View, GUIView
 
 def run():
     # setup mouse
     pg.mouse.set_visible(False)
 
     # setup screen and clock
-    display, screen = setup.setup_screen()
+    display = setup.setup_screen()
     clock = pg.time.Clock()
 
     # Background layers
@@ -23,30 +23,33 @@ def run():
     game = Game(view)
 
     # Foreground layers
-    # foreground_groups = setup.setup_foreground()
+    gui_view = GUIView()
+    gui_layer = UILayer(gui_view)
 
     # run main loop
-    main_loop(display, screen, clock, view, game)
+    main_loop(display, clock, view, game, gui_view, gui_layer)
 
 
-def main_loop(display: pg.Surface, screen: pg.Surface, clock: pg.time.Clock, view: View, game: Game):
+def main_loop(display: pg.Surface, clock: pg.time.Clock, view: View, game: Game, gui_view: GUIView, gui_layer: UILayer):
     while True:
         # handle events
         # update the state of elements based on events/player triggers
-        events.handle_events(game)
+        events.handle_events(game, gui_layer)
         
         # update game
         game.update()
 
         # draw elements
-        view.draw(screen)
+        view.draw(display)
+        gui_view.draw(display)
 
         # debug info
-        if config.DEBUG_INFO: debug.display_debug(screen)
+        if config.DEBUG_INFO: debug.display_debug(display)
         
         # update screen
-        display.blit(screen, (0, 0))
         pg.display.flip()
 
         # tick
-        clock.tick(config.FRAMERATE)
+        debug_dt = clock.tick(config.FRAMERATE)
+        debug.debug["DT"] = debug_dt
+        debug.debug["FPS"] = 1000 / debug_dt
