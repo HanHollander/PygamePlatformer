@@ -1,10 +1,11 @@
 import pygame as pg
 
 import actions
+import view
 from elements import *
 from model import Game, UILayer
 
-def handle_events(game: Game, ui_layer: UILayer):
+def handle_events(game: Game, ui_layer: UILayer, game_view: view.View):
     for event in pg.event.get():
 
         # quit
@@ -28,6 +29,9 @@ def handle_events(game: Game, ui_layer: UILayer):
         # on key up
         if event.type == pg.KEYUP:
             game.on_key_up(event)
+        
+        if event.type == pg.VIDEORESIZE:
+            game_view.on_window_resize(event)
 
 
 # # mouse down

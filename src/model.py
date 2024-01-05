@@ -63,6 +63,10 @@ class Game:
         for physics_object in self.physics_objects:
             view.add(physics_object.element)
 
+            # Center on the player
+            if isinstance(physics_object, Player):
+                view.center_element = physics_object.element
+
     def update(self):
         for physics_object in self.physics_objects:
             physics_object.update()

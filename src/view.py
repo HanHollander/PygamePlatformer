@@ -1,18 +1,41 @@
+import copy
 import pygame as pg
 
 import config as c
+import elements
 
 class Viewport:
 
-    def __init__(self) -> None:
-        self.camera = pg.Rect(0, 0, c.SCREEN_WIDTH, c.SCREEN_HEIGHT)
-        self.screen_size = pg.Vector2(c.SCREEN_WIDTH * c.INIT_SCALE, c.SCREEN_HEIGHT * c.INIT_SCALE)
+    def __init__(self, camera: pg.Rect, screen_size: pg.Vector2) -> None:
+        self.camera = camera
+        self.screen_size = screen_size
 
 class View(pg.sprite.Group):
     
-    def __init__(self):
+    def __init__(self, viewport: Viewport):
         pg.sprite.Group.__init__(self)
-        self.update_viewport(Viewport())
+        self.viewport: Viewport
+        self.background: pg.Surface
+        self.view_surface: pg.Surface
+        self.center_element: elements.Element = None
+        self.update_viewport(viewport)
+
+    def on_window_resize(self, event: pg.event.Event) -> None:
+        pixel_density = self.viewport.screen_size.x / self.viewport.camera.width
+
+        new_camera_width = event.w / pixel_density
+        new_camera_height = event.h / pixel_density
+    
+        self.update_viewport(Viewport(
+            pg.Rect(self.viewport.camera.x - (new_camera_width - self.viewport.camera.width) / 2,
+                    self.viewport.camera.y - (new_camera_height - self.viewport.camera.height) / 2,
+                    new_camera_width, new_camera_height), pg.Vector2(event.w, event.h)))
+
+    def center_camera(self) -> None:
+        if self.center_element is not None:
+            self.viewport.camera.x = self.center_element.rect.centerx - self.viewport.camera.width / 2
+            self.viewport.camera.y = self.center_element.rect.centery - self.viewport.camera.height / 2
+
 
     def update_viewport(self, new_viewport: Viewport) -> None:
         self.viewport = new_viewport
@@ -23,6 +46,8 @@ class View(pg.sprite.Group):
 
     # override
     def draw(self, screen: pg.Surface):
+        self.center_camera()
+
         self.view_surface.blit(self.background, pg.Rect(0, 0, self.viewport.camera.width, self.viewport.camera.height), None, 0)
         # - reposition camera
         #   - make it center

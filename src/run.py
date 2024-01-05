@@ -13,13 +13,13 @@ def run():
     pg.mouse.set_visible(False)
 
     # setup screen and clock
-    display = setup.setup_screen()
+    display, viewport = setup.setup_screen()
     clock = pg.time.Clock()
 
     # Background layers
 
     # setup game
-    view = View()
+    view = View(viewport)
     game = Game(view)
 
     # Foreground layers
@@ -34,7 +34,7 @@ def main_loop(display: pg.Surface, clock: pg.time.Clock, view: View, game: Game,
     while True:
         # handle events
         # update the state of elements based on events/player triggers
-        events.handle_events(game, gui_layer)
+        events.handle_events(game, gui_layer, view)
         
         # update game
         game.update()
