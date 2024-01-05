@@ -65,10 +65,10 @@ class Game:
         for physics_object in self.physics_objects:
             view.add(physics_object.element)
 
-    def update(self, dt: float):
+    def update(self):
         self.cursor.update()
         for physics_object in self.physics_objects:
-            physics_object.update(dt)
+            physics_object.update()
 
     def on_mouse_motion(self, event: pg.event.Event):
         self.cursor.on_mouse_motion(event)
@@ -128,9 +128,9 @@ class PhysicsObject:
         self.mass = mass  # m
         self.solid = solid
 
-    def update(self, dt: float):
+    def update(self):
         # apply collisions (update position)
-        self.apply_force(dt)
+        self.apply_force()
 
         # resolve collisions (update position again)
         # collisions = self.get_collisions()
@@ -146,7 +146,7 @@ class PhysicsObject:
                                                       self.position.y),
                                     self.element.image.get_size())
 
-    def apply_force(self, dt: float):
+    def apply_force(self):
         # add reaction forces and limit velocity
         reaction_forces: list[Vector2] = []
         for direction in ps.Direction:
@@ -160,8 +160,8 @@ class PhysicsObject:
         # clip velocity
         if util.mag_v2(self.velocity) < ps.c_VELOCITY_CLIPPING_TRESHOLD_LOW:
             self.velocity = Vector2(0, 0)
-        elif util.mag_v2(self.velocity) > ps.c_VELOCITY_CLIPPING_TRESHOLD_HIGH:
-            self.velocity = Vector2(ps.c_VELOCITY_CLIPPING_TRESHOLD_HIGH, ps.c_VELOCITY_CLIPPING_TRESHOLD_HIGH)
+        # elif util.mag_v2(self.velocity) > c_VELOCITY_CLIPPING_TRESHOLD_HIGH:
+        #     self.velocity = Vector2(c_VELOCITY_CLIPPING_TRESHOLD_HIGH, c_VELOCITY_CLIPPING_TRESHOLD_HIGH)
         
         # add drag F_D = C_D * A * rho * V² / 2
         # F_D = drag force
@@ -201,9 +201,9 @@ class PhysicsObject:
         self.velocity.y = self.velocity.y + force_vector_sum.y / self.mass
 
         # apply velocity to position
-        self.position.xf = self.position.xf + self.velocity.x * dt
+        self.position.xf = self.position.xf + self.velocity.x
         self.position.x = math.floor(self.position.xf)
-        self.position.yf = self.position.yf + self.velocity.y * dt
+        self.position.yf = self.position.yf + self.velocity.y
         self.position.y = math.floor(self.position.yf)
         self.sync_element()
 
@@ -275,19 +275,18 @@ class Player(PhysicsObject):
                                solid, 
                                gravity)
         
-    def update(self, dt: float):
+    def update(self):
         self.add_player_input_forces()
-        PhysicsObject.update(self, dt)
-        print(self.velocity)
+        PhysicsObject.update(self)
 
     def add_player_input_forces(self):
         for key in self.game.keys_down:
             if key == pg.K_UP and self.is_touching(ps.Direction.DOWN):
-                self.temp_forces.append(-0.9 * ps.c_GRAVITY)
+                self.temp_forces.append(-50 *ps.c_GRAVITY)
             elif key == pg.K_LEFT:
-                self.temp_forces.append(Vector2(-10, 0))
+                self.temp_forces.append(Vector2(-0.4, 0))
             elif key == pg.K_RIGHT:
-                self.temp_forces.append(Vector2(10, 0))
+                self.temp_forces.append(Vector2(0.4, 0))
         
     def on_key_down(self, event: pg.event.Event):
         pass
