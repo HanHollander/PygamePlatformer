@@ -31,9 +31,8 @@ class Direction(Enum):
         raise Exception(f"Should not happen: {v}")
         
 
-c_GRAVITY = Vector2(0, 0.2)  # m px/tick²
-c_AIR_DRAG_CONSTANT = 0.008
-c_GROUND_DRAG_CONSTANT = 0.2
-c_VELOCITY_CLIPPING_TRESHOLD_LOW = 0.15
-c_VELOCITY_CLIPPING_TRESHOLD_HIGH = 999.9
-c_FRICTION_COEFFICIENT = 1.1
+c_GRAVITY = Vector2(0, 20)  # m px/s²
+c_AIR_DRAG_CONSTANT = 0.0003
+c_VELOCITY_CLIPPING_TRESHOLD_LOW = 1  # [px/s]
+c_VELOCITY_CLIPPING_TRESHOLD_HIGH = 99999.9  #  [px/s]
+c_FRICTION_COEFFICIENT = 0.2
