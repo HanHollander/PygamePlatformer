@@ -24,17 +24,16 @@ def run():
 
     # Foreground layers
     gui_view = GUIView()
-    gui_layer = UILayer(gui_view)
 
     # run main loop
-    main_loop(display, clock, view, game, gui_view, gui_layer)
+    main_loop(display, clock, view, game, gui_view)
 
 
-def main_loop(display: pg.Surface, clock: pg.time.Clock, view: View, game: Game, gui_view: GUIView, gui_layer: UILayer):
+def main_loop(display: pg.Surface, clock: pg.time.Clock, view: View, game: Game, gui_view: GUIView):
     while True:
         # handle events
         # update the state of elements based on events/player triggers
-        events.handle_events(game, gui_layer, view)
+        events.handle_events(game, view, gui_view)
         
         # update game
         game.update()

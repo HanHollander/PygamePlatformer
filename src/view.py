@@ -1,8 +1,10 @@
 import copy
+from typing import Any, Iterable, Union
 import pygame as pg
+from pygame.sprite import AbstractGroup
 
-import config as c
 import elements
+import graphics
 
 class Viewport:
 
@@ -21,15 +23,18 @@ class View(pg.sprite.Group):
         self.update_viewport(viewport)
 
     def on_window_resize(self, event: pg.event.Event) -> None:
-        pixel_density = self.viewport.screen_size.x / self.viewport.camera.width
+        old_window_ratio = self.viewport.screen_size.x / self.viewport.screen_size.y
+        new_window_ratio = event.w / event.h
 
-        new_camera_width = event.w / pixel_density
-        new_camera_height = event.h / pixel_density
+        new_camera: pg.Rect = copy.copy(self.viewport.camera)
+        if new_window_ratio > old_window_ratio:
+            new_camera.width = new_camera.height * new_window_ratio
+            new_camera.x -= (new_camera.width - self.viewport.camera.width) / 2
+        else:
+            new_camera.height = new_camera.width / new_window_ratio
+            new_camera.y -= (new_camera.height - self.viewport.camera.height) / 2
     
-        self.update_viewport(Viewport(
-            pg.Rect(self.viewport.camera.x - (new_camera_width - self.viewport.camera.width) / 2,
-                    self.viewport.camera.y - (new_camera_height - self.viewport.camera.height) / 2,
-                    new_camera_width, new_camera_height), pg.Vector2(event.w, event.h)))
+        self.update_viewport(Viewport(new_camera, pg.Vector2(event.w, event.h)))
 
     def center_camera(self) -> None:
         if self.center_element is not None:
@@ -69,4 +74,25 @@ class View(pg.sprite.Group):
         return str(self.type) + ": " + pg.sprite.Group.__str__(self)
 
 class GUIView(pg.sprite.Group):
-    pass
+    
+    def __init__(self, *sprites: Any | AbstractGroup | Iterable) -> None:
+        super().__init__(*sprites)
+
+        self.cursor = Cursor()
+        self.add(self.cursor.element)
+    
+    def on_mouse_motion(self, event: pg.event.Event) -> None:
+        self.cursor.on_mouse_motion(event)
+
+
+class Cursor:
+    def __init__(self) -> None:
+        sprite = pg.transform.scale_by(graphics.img_cursor.copy(), 4)
+        self.element = elements.SpriteElement(
+            pos=(20, 240 - sprite.get_size()[1] / 2),
+            img=sprite
+        )
+
+    def on_mouse_motion(self, event: pg.event.Event) -> None:
+        self.element.rect = pg.Rect(
+            event.pos, (self.element.rect.w, self.element.rect.h))

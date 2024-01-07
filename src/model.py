@@ -86,28 +86,6 @@ class Game:
                 physics_object.on_key_up(event)
 
 
-class UILayer:
-
-    def __init__(self, view: GUIView) -> None:
-        self.cursor = Cursor()
-        view.add(self.cursor.element)
-
-    def on_mouse_motion(self, event: pg.event.Event):
-        self.cursor.on_mouse_motion(event)
-
-
-class Cursor:
-    def __init__(self):
-        self.element = CursorElement(
-            pos=(20, 240 - graphics.img_cursor.get_size()[1] / 2),
-            img=graphics.img_cursor
-        )
-
-    def on_mouse_motion(self, event: pg.event.Event):
-        self.element.rect = pg.Rect(
-            event.pos, (self.element.rect.w, self.element.rect.h))
-
-
 class PhysicsObject:
 
     def __init__(self,
