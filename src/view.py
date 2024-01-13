@@ -17,22 +17,25 @@ class View(pg.sprite.Group):
     def __init__(self, viewport: Viewport):
         pg.sprite.Group.__init__(self)
         self.viewport: Viewport
+        self.minimum_dimensions = pg.Vector2(viewport.camera.size)
         self.background: pg.Surface
         self.view_surface: pg.Surface
         self.center_element: elements.Element = None
         self.update_viewport(viewport)
 
     def on_window_resize(self, event: pg.event.Event) -> None:
-        old_window_ratio = self.viewport.screen_size.x / self.viewport.screen_size.y
+        pref_ratio = self.minimum_dimensions.x / self.minimum_dimensions.y
         new_window_ratio = event.w / event.h
 
         new_camera: pg.Rect = copy.copy(self.viewport.camera)
-        if new_window_ratio > old_window_ratio:
+        if new_window_ratio > pref_ratio:
+            new_camera.height = self.minimum_dimensions.y
             new_camera.width = new_camera.height * new_window_ratio
-            new_camera.x -= (new_camera.width - self.viewport.camera.width) / 2
         else:
+            new_camera.width = self.minimum_dimensions.x
             new_camera.height = new_camera.width / new_window_ratio
-            new_camera.y -= (new_camera.height - self.viewport.camera.height) / 2
+        new_camera.x -= (new_camera.width - self.viewport.camera.width) / 2
+        new_camera.y -= (new_camera.height - self.viewport.camera.height) / 2
     
         self.update_viewport(Viewport(new_camera, pg.Vector2(event.w, event.h)))
 
