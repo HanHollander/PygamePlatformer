@@ -10,16 +10,13 @@ from elements import GroupElement, SpriteElement, CursorElement, PhysicsElement
 import config
 import actions
 import debug
-from view import View
+from view import GUIView, View
 
 
 class Game:
 
     def __init__(self, view: View):
         self.keys_down: set[int] = set()
-
-        self.cursor = Cursor()
-        view.add(self.cursor.element)
 
         platform = pg.Surface(
             size=(300, 10)
@@ -66,13 +63,13 @@ class Game:
         for physics_object in self.physics_objects:
             view.add(physics_object.element)
 
+            # Center on the player
+            if isinstance(physics_object, Player):
+                view.center_element = physics_object.element
+
     def update(self):
-        self.cursor.update()
         for physics_object in self.physics_objects:
             physics_object.update()
-
-    def on_mouse_motion(self, event: pg.event.Event):
-        self.cursor.on_mouse_motion(event)
 
     def on_key_down(self, event: pg.event.Event):
         self.keys_down.add(event.key)
@@ -87,21 +84,6 @@ class Game:
         for physics_object in self.physics_objects:
             if isinstance(physics_object, Player):
                 physics_object.on_key_up(event)
-
-
-class Cursor:
-    def __init__(self):
-        self.element = CursorElement(
-            pos=(20, 240 - graphics.img_cursor.get_size()[1] / 2),
-            img=graphics.img_cursor
-        )
-
-    def update(self):
-        pass
-
-    def on_mouse_motion(self, event: pg.event.Event):
-        self.element.rect = pg.Rect(
-            event.pos, (self.element.rect.w, self.element.rect.h))
 
 
 class PhysicsObject:
@@ -156,6 +138,7 @@ class PhysicsObject:
                     if force * direction.value > 0:
                         reaction_forces.append(force.elementwise() * (direction.absolute()) * -1)
                 if self.velocity * direction.value > 0:
+                    # BOUNCE 2*
                     self.velocity = self.velocity - (self.velocity.elementwise() * direction.absolute())
 
         # clip velocity

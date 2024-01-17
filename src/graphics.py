@@ -4,25 +4,6 @@ import os
 import pygame as pg
 import config
 
-# dimensions
-
-d_UNIT_WIDTH = config.SCREEN_WIDTH / 16
-d_UNIT_HEIGHT = config.SCREEN_HEIGHT / 9
-
-d_GUI_WIDTH = config.SCREEN_WIDTH / 16 * 5  # 320 -> 100
-d_GUI_HEIGHT = config.SCREEN_HEIGHT
-
-d_MAP_CENTER = ((config.SCREEN_WIDTH - d_GUI_WIDTH) / 2 + d_GUI_WIDTH, config.SCREEN_HEIGHT / 2)
-
-d_MAP_POS_X = d_GUI_WIDTH
-d_MAP_POS_Y = 0
-d_MAP_WIDTH = config.SCREEN_WIDTH - d_GUI_WIDTH
-d_MAP_HEIGHT = config.SCREEN_HEIGHT
-d_MAP_RECT = pg.Rect(d_MAP_POS_X, d_MAP_POS_Y, d_MAP_WIDTH, d_MAP_HEIGHT)
-
-
-d_CIRCLE_RADIUS = 10
-
 # colours
 
 c_COLOUR_KEY = (255, 0, 255)  # ff00ff
