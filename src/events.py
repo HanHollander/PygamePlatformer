@@ -25,6 +25,7 @@ def handle_events(game: Game, game_view: view.View, ui_view: view.GUIView):
         # on key down
         if event.type == pg.KEYDOWN:
             game.on_key_down(event)
+            game_view.on_key_down(event)
 
         # on key up
         if event.type == pg.KEYUP:
