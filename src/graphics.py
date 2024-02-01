@@ -2,7 +2,7 @@ from enum import Enum
 import os
 
 import pygame as pg
-import config
+import config as config
 
 # colours
 
