@@ -1,21 +1,20 @@
 import math
+import sys
 import pygame as pg
 from pygame import Vector2
 
-import collision
 import graphics
 import util
 import physics as ps
-from elements import GroupElement, SpriteElement, CursorElement, PhysicsElement
-import config
-import actions
-import debug
-from view import GUIView, View
+from myelements import PhysicsElement
+import config as config
+import pynkie.debug as debug
+from pynkie.view import ScaledView
 
 
 class Game:
 
-    def __init__(self, view: View):
+    def __init__(self, view: ScaledView):
         self.keys_down: set[int] = set()
 
         platform = pg.Surface(
@@ -67,14 +66,15 @@ class Game:
             if isinstance(physics_object, Player):
                 view.center_element = physics_object.element
 
-    def update(self):
+    def update(self, dt: float):
         for physics_object in self.physics_objects:
-            physics_object.update()
+            physics_object.update(dt)
 
     def on_key_down(self, event: pg.event.Event):
         self.keys_down.add(event.key)
         if event.key == pg.K_q:
-            actions.quit()
+            pg.quit()
+            sys.exit()
         for physics_object in self.physics_objects:
             if isinstance(physics_object, Player):
                 physics_object.on_key_down(event)
@@ -111,7 +111,7 @@ class PhysicsObject:
         self.mass = mass  # m
         self.solid = solid
 
-    def update(self):
+    def update(self, dt: float):
         # apply collisions (update position)
         self.apply_force()
 
@@ -260,9 +260,9 @@ class Player(PhysicsObject):
                                solid, 
                                gravity)
         
-    def update(self):
+    def update(self, dt: float):
         self.add_player_input_forces()
-        PhysicsObject.update(self)
+        PhysicsObject.update(self, dt)
         if config.DEBUG_INFO: 
             debug.debug["velocity"] = self.velocity
             debug.debug["position"] = self.position
